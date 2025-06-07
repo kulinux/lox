@@ -9,13 +9,27 @@ class TokenizeShould extends AnyFreeSpec with Matchers {
 
   val lox = Lox()
 
+  "several tokens" - {
+    "var" in {
+      val actual = lox.tokenize("var")
+
+      actual shouldBe Seq(Var, Eof)
+    }
+
+    "var language" in {
+      val actual = lox.tokenize("var language")
+
+      actual shouldBe Seq(Var, Identifier("language"), Eof)
+    }
+  }
+
   "variable assignment" in {
-    val actual = lox.tokenize("var language = \"lox\";")
+    val actual = lox.tokenize("var language = \"lox\" ;")
 
     val expected =
       Seq(
         Var,
-        Identifier,
+        Identifier("language"),
         Equal,
         Str("lox"),
         Semicolon,
