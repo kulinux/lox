@@ -32,7 +32,7 @@ class E2ETokenizeShould extends AnyFeatureSpec with GivenWhenThen with Matchers 
   Feature("tokenize") {
     Scenario("assigmnment") {
       Given("A line and a lox")
-      val line = "var language = \"lox\";"
+      val line = "var language = \"lox\" ;"
       val lox  = Lox()
 
       When("tokenize")
