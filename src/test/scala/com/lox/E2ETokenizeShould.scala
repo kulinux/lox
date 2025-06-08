@@ -21,6 +21,8 @@ given showAllTokens: Show[Tokens] with
     case e: Equal.type      => "EQUAL = null"
     case str: Str           => str.show
     case sc: Semicolon.type => "SEMICOLON ; null"
+    case v: LeftParen.type  => "LEFT_PAREN ( null"
+    case v: RightParen.type => "RIGHT_PAREN ) null"
     case eof: Eof.type      => "EOF null"
 
 given showTokenized: Show[Tokenized] with
@@ -37,8 +39,8 @@ class E2ETokenizeShould extends AnyFeatureSpec with GivenWhenThen with Matchers 
 
       When("tokenize")
       val actual = lox.tokenize(line)
-      Then("I have an string representation")
 
+      Then("I have an string representation")
       val expected =
         """VAR var null
           |IDENTIFIER language null
@@ -48,6 +50,25 @@ class E2ETokenizeShould extends AnyFeatureSpec with GivenWhenThen with Matchers 
           |EOF null""".stripMargin
 
       actual.show shouldBe expected
+    }
+
+    Scenario("Parenthesis") {
+      Given("A line and a lox")
+      val line = "( ( )"
+      val lox  = Lox()
+
+      When("tokenize")
+      val actual = lox.tokenize(line)
+
+      Then("I have an string representation")
+      val expected =
+        """LEFT_PAREN ( null
+          |LEFT_PAREN ( null
+          |RIGHT_PAREN ) null
+          |EOF null""".stripMargin
+
+      actual.show shouldBe expected
+
     }
   }
 }

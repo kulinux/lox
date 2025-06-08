@@ -38,4 +38,18 @@ class TokenizeShould extends AnyFreeSpec with Matchers {
 
     actual.shouldBe(expected)
   }
+
+  "Parenthesis" in {
+    val actual = lox.tokenize("( ( )")
+
+    val expected =
+      Seq(
+        LeftParen,
+        LeftParen,
+        RightParen,
+        Eof
+      )
+
+    actual shouldBe expected
+  }
 }
