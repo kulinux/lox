@@ -1,7 +1,8 @@
 package com.lox
 
 import cats.data.State
-import cats.syntax.functor._
+import cats.syntax.traverse._ // para traverse
+import cats.instances.list._
 
 enum Tokens:
   case Var
@@ -17,63 +18,57 @@ type Token = Tokens
 
 type Tokenized = Tokens | Seq[Tokens]
 
-sealed trait StatesFoo
+sealed trait AllStates
 
-enum StatesVar extends StatesFoo:
+enum StatesCommon extends AllStates:
   case Initial
+  case Eof
+  case Error
+
+enum StatesVar extends AllStates:
   case Var
   case Identifier
   case Equal
   case Str
   case Semicolon
-  case Error
 
-enum StatesParen extends StatesFoo:
-  case Initial
+enum StatesParen extends AllStates:
+  case None
 
 class Lox:
 
-  val changeVar: String => State[StatesFoo, Tokens] = (value: String) =>
+  def changeVar(value: String): State[AllStates, Tokens] =
     State { state =>
       (state, value) match
-        case (StatesVar.Initial, "var")  => (StatesVar.Var, Tokens.Var)
-        case (StatesVar.Var, _)          => (StatesVar.Identifier, Tokens.Identifier(value))
-        case (StatesVar.Identifier, "=") => (StatesVar.Equal, Tokens.Equal)
-        case (StatesVar.Equal, _)        => (StatesVar.Str, Tokens.Str(value.replace("\"", "")))
-        case (StatesVar.Str, ";")        => (StatesVar.Semicolon, Tokens.Semicolon)
-        case _                           => (StatesVar.Error, Tokens.Eof)
+        case (StatesCommon.Initial, "var") => (StatesVar.Var, Tokens.Var)
+        case (StatesVar.Var, _)            => (StatesVar.Identifier, Tokens.Identifier(value))
+        case (StatesVar.Identifier, "=")   => (StatesVar.Equal, Tokens.Equal)
+        case (StatesVar.Equal, _)          => (StatesVar.Str, Tokens.Str(value.replace("\"", "")))
+        case (StatesVar.Str, ";")          => (StatesVar.Semicolon, Tokens.Semicolon)
+        case _                             => (StatesCommon.Error, Tokens.Eof)
     }
 
-  val changeParen: String => State[StatesFoo, Tokens] = (value: String) =>
+  def changeParen(value: String): State[AllStates, Tokens] =
     State { state =>
       (state, value) match
-        case (_, "(") => (StatesParen.Initial, Tokens.LeftParen)
-        case (_, ")") => (StatesParen.Initial, Tokens.RightParen)
+        case (_, "(") => (StatesCommon.Initial, Tokens.LeftParen)
+        case (_, ")") => (StatesCommon.Initial, Tokens.RightParen)
         case _        => (state, Tokens.Eof)
     }
 
-  val changeVarList: List[String] => State[StatesFoo, Seq[Tokens]] =
-    (values: List[String]) =>
-      values.foldLeft(State.pure[StatesFoo, Seq[Tokens]](Seq.empty)) { (acc, value) =>
-        acc.flatMap(tokens => changeVar(value).map(tokens :+ _))
-      }
+  def changeList(changeItem: String => State[AllStates, Tokens])(values: List[String]): State[AllStates, List[Tokens]] =
+    values.traverse(changeItem)
 
-  val changeParenList: List[String] => State[StatesFoo, Seq[Tokens]] =
-    (values: List[String]) =>
-      values.foldLeft(State.pure[StatesFoo, Seq[Tokens]](Seq.empty)) { (acc, value) =>
-        acc.flatMap(tokens => changeParen(value).map(tokens :+ _))
-      }
-
-  val change: List[String] => State[StatesFoo, Seq[Tokens]] =
+  val change: List[String] => State[AllStates, List[Tokens]] =
     (values: List[String]) =>
       values.head match
-        case "(" => changeParenList(values)
-        case _   => changeVarList(values)
+        case "(" => changeList(changeParen)(values)
+        case _   => changeList(changeVar)(values)
 
   import Tokens._
 
   def tokenize(input: String): Tokenized =
     val stringTokens = input.split(" ").toList
-    val res          = change.apply(stringTokens).runA(StatesVar.Initial).value
+    val res          = change.apply(stringTokens).runA(StatesCommon.Initial).value
 
     res :+ Eof
