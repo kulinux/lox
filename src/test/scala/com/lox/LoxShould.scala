@@ -40,13 +40,26 @@ class LoxShould extends AnyFreeSpec with Matchers {
   }
 
   "Parenthesis" in {
-    val actual = lox.tokenize("( ( )")
+    val actual = lox.tokenize("(()")
 
     val expected =
       Seq(
         LeftParen,
         LeftParen,
         RightParen,
+        Eof
+      )
+
+    actual shouldBe expected
+  }
+
+  "Braces" in {
+    val actual = lox.tokenize("{}")
+
+    val expected =
+      Seq(
+        LeftBrace,
+        RightBrace,
         Eof
       )
 

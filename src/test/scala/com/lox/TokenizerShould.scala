@@ -29,5 +29,11 @@ class TokenizerShould extends AnyFreeSpec with Matchers {
       val actual    = tokenizer.tokenize("(()")
       actual shouldBe List("(", "(", ")")
     }
+
+    "braces" in {
+      val tokenizer = Tokenizer()
+      val actual    = tokenizer.tokenize("{}")
+      actual shouldBe List("{", "}")
+    }
   }
 }

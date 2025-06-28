@@ -6,17 +6,10 @@ class Tokenizer:
 
     val anyWord  = """\w+"""
     val inQuotes = """"[^"]*""""
-    val specials = """[\(\)=;]"""
+    val specials = """[\(\)=;{}]"""
 
     val pattern = s"""${anyWord}|${inQuotes}|${specials}""".r
 
     pattern
       .findAllIn(input)
-      .map {
-        case "("  => "("
-        case ")"  => ")"
-        case "="  => "="
-        case ";"  => ";"
-        case word => word
-      }
       .toList

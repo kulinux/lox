@@ -23,6 +23,8 @@ given showAllTokens: Show[Tokens] with
     case sc: Semicolon.type => "SEMICOLON ; null"
     case v: LeftParen.type  => "LEFT_PAREN ( null"
     case v: RightParen.type => "RIGHT_PAREN ) null"
+    case v: LeftBrace.type  => "LEFT_BRACE ( null"
+    case v: RightBrace.type => "RIGHT_BRACE ) null"
     case eof: Eof.type      => "EOF null"
 
 given showTokenized: Show[Tokenized] with
@@ -65,6 +67,26 @@ class E2ELoxShould extends AnyFeatureSpec with GivenWhenThen with Matchers {
         """LEFT_PAREN ( null
           |LEFT_PAREN ( null
           |RIGHT_PAREN ) null
+          |EOF null""".stripMargin
+
+      actual.show shouldBe expected
+
+    }
+
+    Scenario("Braces") {
+      Given("A line and a lox")
+      val line = "{{}}"
+      val lox  = Lox()
+
+      When("tokenize")
+      val actual = lox.tokenize(line)
+
+      Then("I have an string representation")
+      val expected =
+        """LEFT_BRACE ( null
+          |LEFT_BRACE ( null
+          |RIGHT_BRACE ) null
+          |RIGHT_BRACE ) null
           |EOF null""".stripMargin
 
       actual.show shouldBe expected

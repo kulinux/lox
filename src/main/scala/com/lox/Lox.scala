@@ -12,6 +12,8 @@ enum Tokens:
   case Semicolon
   case LeftParen
   case RightParen
+  case LeftBrace
+  case RightBrace
   case Eof
 
 type Token = Tokens
@@ -56,6 +58,14 @@ class Lox(val tokenizer: Tokenizer = Tokenizer()):
         case _        => (state, Tokens.Eof)
     }
 
+  def changeBrace(value: String): State[AllStates, Tokens] =
+    State { state =>
+      (state, value) match
+        case (_, "{") => (StatesCommon.Initial, Tokens.LeftBrace)
+        case (_, "}") => (StatesCommon.Initial, Tokens.RightBrace)
+        case _        => (state, Tokens.Eof)
+    }
+
   def changeList(changeItem: String => State[AllStates, Tokens])(values: List[String]): State[AllStates, List[Tokens]] =
     values.traverse(changeItem)
 
@@ -63,6 +73,7 @@ class Lox(val tokenizer: Tokenizer = Tokenizer()):
     (values: List[String]) =>
       values.head match
         case "(" => changeList(changeParen)(values)
+        case "{" => changeList(changeBrace)(values)
         case _   => changeList(changeVar)(values)
 
   import Tokens._
