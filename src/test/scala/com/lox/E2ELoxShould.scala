@@ -30,7 +30,7 @@ given showTokenized: Show[Tokenized] with
     case token: Token            => "Token"
     case seqOfTokens: Seq[Token] => seqOfTokens.map(_.show).mkString("\n")
 
-class E2ETokenizeShould extends AnyFeatureSpec with GivenWhenThen with Matchers {
+class E2ELoxShould extends AnyFeatureSpec with GivenWhenThen with Matchers {
   Feature("tokenize") {
     Scenario("assigmnment") {
       Given("A line and a lox")

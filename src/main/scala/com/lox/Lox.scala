@@ -35,7 +35,7 @@ enum StatesVar extends AllStates:
 enum StatesParen extends AllStates:
   case None
 
-class Lox:
+class Lox(val tokenizer: Tokenizer = Tokenizer()):
 
   def changeVar(value: String): State[AllStates, Tokens] =
     State { state =>
@@ -68,7 +68,7 @@ class Lox:
   import Tokens._
 
   def tokenize(input: String): Tokenized =
-    val stringTokens = input.split(" ").toList
+    val stringTokens = tokenizer.tokenize(input)
     val res          = change.apply(stringTokens).runA(StatesCommon.Initial).value
 
     res :+ Eof

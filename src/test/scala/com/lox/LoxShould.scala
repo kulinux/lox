@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 
 import Tokens._
 
-class TokenizeShould extends AnyFreeSpec with Matchers {
+class LoxShould extends AnyFreeSpec with Matchers {
 
   val lox = Lox()
 
