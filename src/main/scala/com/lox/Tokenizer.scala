@@ -2,4 +2,21 @@ package com.lox
 
 class Tokenizer:
   def tokenize(input: String): List[String] =
-    input.split(" ").toList
+    if input.isEmpty then return List()
+
+    val anyWord  = """\w+"""
+    val inQuotes = """"[^"]*""""
+    val specials = """[\(\)=;]"""
+
+    val pattern = s"""${anyWord}|${inQuotes}|${specials}""".r
+
+    pattern
+      .findAllIn(input)
+      .map {
+        case "("  => "("
+        case ")"  => ")"
+        case "="  => "="
+        case ";"  => ";"
+        case word => word
+      }
+      .toList

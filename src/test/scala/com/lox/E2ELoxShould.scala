@@ -54,7 +54,7 @@ class E2ELoxShould extends AnyFeatureSpec with GivenWhenThen with Matchers {
 
     Scenario("Parenthesis") {
       Given("A line and a lox")
-      val line = "( ( )"
+      val line = "(()"
       val lox  = Lox()
 
       When("tokenize")
